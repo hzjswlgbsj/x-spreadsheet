@@ -27,6 +27,10 @@ class Spreadsheet {
       this.deleteSheet();
     }, (index, value) => {
       this.datas[index].name = value;
+      // 手动触发cell-edited事件
+      if (this.sheet) {
+        this.sheet.trigger('cell-edited');
+      }
     });
     this.data = this.addSheet();
     const rootEl = h('div', `${cssPrefix}`)
@@ -38,9 +42,14 @@ class Spreadsheet {
   }
 
   addSheet(name, active = true) {
+    // 手动触发cell-edited事件
+    if (this.sheet) {
+      this.sheet.trigger('cell-edited');
+    }
     const n = name || `sheet${this.sheetIndex}`;
     const d = new DataProxy(n, this.options);
     d.change = (...args) => {
+      // 数据代理，这里的change只会在表格的网格区域数据改变后才会触发
       this.sheet.trigger('change', ...args);
     };
     this.datas.push(d);
